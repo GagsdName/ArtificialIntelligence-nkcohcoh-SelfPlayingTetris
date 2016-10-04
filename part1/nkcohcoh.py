@@ -1,6 +1,6 @@
 import sys
-n = 0
-k = 0
+n = int(sys.argv[1])
+k = int(sys.argv[2])
 board_state_string = ""
 time_limit = 0
 
