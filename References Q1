@@ -10,3 +10,17 @@ print "rot270\n", n
 
 TO CHECK FOR SYMMETRICAL STATES
 http://docs.scipy.org/doc/numpy/reference/generated/numpy.rot90.html
+
+Terminal condition check
+http://stackoverflow.com/questions/32415859/javascript-pattern-matching-a-matrix
+
+http://stackoverflow.com/questions/11236090/regex-for-selecting-elements-from-transform-matrix
+
+http://stackoverflow.com/questions/28918513/how-can-i-find-the-diagonals-of-all-matrices-in-a-file-using-numpy
+
+
+symmetry chk
+http://stackoverflow.com/questions/36972389/generating-all-possible-tic-tac-toe-boards-with-symmetry
+
+win condition
+http://codegolf.stackexchange.com/questions/32383/determine-win-in-tictactoe
