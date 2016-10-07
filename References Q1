@@ -1,0 +1,12 @@
+import numpy as np
+m = np.array([[1,2],[3,4]], int)# your code goes here
+print m
+k=np.rot90(m)
+print "rot90\n", k
+l=np.rot90(k)
+print "rot180\n", l
+n=np.rot90(l)
+print "rot270\n", n
+
+
+http://docs.scipy.org/doc/numpy/reference/generated/numpy.rot90.html
