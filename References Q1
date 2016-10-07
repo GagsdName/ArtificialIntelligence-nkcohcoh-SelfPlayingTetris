@@ -8,5 +8,5 @@ print "rot180\n", l
 n=np.rot90(l)
 print "rot270\n", n
 
-
+TO CHECK FOR SYMMETRICAL STATES
 http://docs.scipy.org/doc/numpy/reference/generated/numpy.rot90.html
