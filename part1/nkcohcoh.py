@@ -1,7 +1,12 @@
 import sys
 import numpy as np
 import copy
+import re
 #reading arguments
+
+if len(sys.argv) != 5:
+    print "\n Use the following format: python nkcohcoh.py [value of n] [value of k] [board in row major format] [time-limit for move]"
+    sys.exit()
 
 n = int(sys.argv[1])
 k = int(sys.argv[2])
@@ -12,17 +17,14 @@ max_string='w'*k
 min_string='b'*k
 max_wins=0
 min_wins=0
-
-
-if len(sys.argv) != 5:
-    print "\n Use the following format: python nkcohcoh.py [value of n] [value of k] [board in row major format] [time-limit for move]"
-    sys.exit()
     
     
 def CTM(state):
 	global n
 	mat=np.array(list(state))
 	fin_mat=mat.reshape(n,n)
+	for i in fin_mat.tolist():
+		print i
 	return fin_mat.tolist()
 
 
@@ -137,9 +139,28 @@ def getall(state):
 #print successors(CTM(board_state_string),0)
 def eval(state):
 	li = getall(state)
-	ss = ''.join(li)
-	
+	sum_w = 0
+	sum_b = 0
+	hw = {}
+	for i in range(2,k):
+		st = 'w'*i
+		hw[st] = 0
+		p = re.compile(r'\b'+st+r'\b')
+		for each in li:
+			hw[st] += len(p.findall(each))*len(st)
+		sr = 'b'*i
+		hw[sr] = 0
+		p = re.compile(r'\b'+sr+r'\b')
+		for each in li:
+			hw[sr] += len(p.findall(each))*len(sr)
+	for i in hw:
+		if 'w' in i:
+			sum_w += hw[i]
+		else:
+			sum_b += hw[i]
+	print "dict",hw
+	print "white:",sum_w
+	print "black:",sum_b
+	return sum_b - sum_w
 
-eval(CTM(board_state_string))
-
-
+print eval(CTM(board_state_string))
