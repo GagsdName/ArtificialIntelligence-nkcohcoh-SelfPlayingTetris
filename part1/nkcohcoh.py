@@ -162,5 +162,15 @@ def eval(state):
 	print "white:",sum_w
 	print "black:",sum_b
 	return sum_b - sum_w
+	
+	
+def minimax(state,min_flag):
+	if chkTerminal(state):
+		print "Terminal\n"
+		return eval(state), state
+	if min_flag:
+		return min(minimax(succ) for succ in successors(state,(min_flag+1)%2))
+	else:
+		return max(minimax(succ) for succ in successors(state,(min_flag+1)%2))
 
 print eval(CTM(board_state_string))
