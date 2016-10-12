@@ -27,3 +27,13 @@ http://codegolf.stackexchange.com/questions/32383/determine-win-in-tictactoe
 
 diagonals
 http://stackoverflow.com/questions/6313308/get-all-the-diagonals-in-a-matrix-list-of-lists-in-python
+
+# to find timeout depth
+http://www.frayn.net/beowulf/theory.html#iterative
+
+
+#alpha beta pruning idea
+http://aima.cs.berkeley.edu/python/games.html
+
+http://stackoverflow.com/questions/19963555/alpha-beta-pruning-python-algorithm
+
