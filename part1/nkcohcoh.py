@@ -17,19 +17,24 @@ max_string='w'*k
 min_string='b'*k
 max_wins=0
 min_wins=0
-    
+
+def print_state(state):
+	for i in state:
+		print i
     
 def CTM(state):
+	#print "I am in CTM"
 	global n
 	mat=np.array(list(state))
 	fin_mat=mat.reshape(n,n)
-	for i in fin_mat.tolist():
-		print i
+	#print type(n)
+	#print_state(state)
 	return fin_mat.tolist()
 
 
 #returns all rotations of a board state    
 def rot_states(state):
+	#print "I am in rot_states"
 	state_set=[]
 	state_set.append(state)
 	k=np.rot90(state)
@@ -42,19 +47,21 @@ def rot_states(state):
 
 #returns unique board States
 def findUniqueStates(succ):
+	#print "I am in findUnique"
 	boardStates=[]
 	for state in succ:
-		n = 0
+		n1 = 0
 		for rot in rot_states(state):
 			if rot not in boardStates:
-				n = n+1
-		if n == 4:
+				n1 = n1+1
+		if n1 == 4:
 			boardStates.append(state)
 	return boardStates
 	
 	
 #check for terminal state
 def chkTerminaldiag(state):
+	#print "I am in ChkDiag"
 	global max_wins
 	global min_wins
 	global n
@@ -63,9 +70,9 @@ def chkTerminaldiag(state):
 	diags = [a[::-1,:].diagonal(i) for i in range(-a.shape[0]+1,a.shape[1])]
 	diags.extend(a.diagonal(i) for i in range(a.shape[1]-1,-a.shape[0],-1))
 	li=[]
-	for n in diags:
-		if not len(n.tolist())<k:
-			li.append(''.join(n.tolist()))
+	for n1 in diags:
+		if not len(n1.tolist())<k:
+			li.append(''.join(n1.tolist()))
 	for each in li:
 		if max_string in each:
 			max_wins=1
@@ -73,10 +80,11 @@ def chkTerminaldiag(state):
 		elif min_string in each:
 			min_wins=1
 			return True
-	
+	#print type(n)
 	return False
 
 def chkTerminalrow(state):
+	#print "I am in Chk row"
 	global max_wins
 	global min_wins
 	global n
@@ -93,23 +101,30 @@ def chkTerminalrow(state):
 	return False
 
 def chkTerminal(state):
-	return chkTerminalrow(state) or chkTerminalrow(np.transpose(state)) or chkTerminaldiag(state)
-	
+	#print "I am in Chk Terminal"
+	if '.' in str(state):
+		return chkTerminalrow(state) or chkTerminalrow(np.transpose(state)) or chkTerminaldiag(state)
+	else:
+		return True
+
 def successors(state,_min):
-	global n
+	#print "I am in succesors"
 	count = 0
 	succ = []
 	if _min:
 		c = 'b'
 	else:
 		c = 'w'
+	#print "suc state",state
 	succ=replace(state,c)
 	
-	return succ
+	return findUniqueStates(succ)
 
 def replace(state,c):
+	#print "I am in replace", state
 	global n
 	succlist=[]
+	#print type(n)
 	for i in range(n):
 		for j in range(n):
 			if state[i][j] == '.':
@@ -118,9 +133,11 @@ def replace(state,c):
 				state1=copy.deepcopy(state)
 				succlist.append(state1)
 				state[i][j]=temp
+	#print type(n)
 	return succlist
 
 def getall(state):
+	#print "I am in getall"
 	global n
 	li = []
 	mat=np.array(state)
@@ -133,44 +150,83 @@ def getall(state):
 		li.append(''.join(state[i]))
 	for i in np.transpose(state).tolist():
 		li.append(''.join(i))
+	#print type(n)
 	return li
-		
-#print chkTerminal(CTM(board_state_string))
-#print successors(CTM(board_state_string),0)
-def eval(state):
+
+def evaluate(state):
+	#print "I am in eval"
 	li = getall(state)
+	print li
 	sum_w = 0
 	sum_b = 0
 	hw = {}
-	for i in range(2,k):
+	for i in range(2,k+1):
 		st = 'w'*i
 		hw[st] = 0
 		p = re.compile(r'\b'+st+r'\b')
 		for each in li:
+			x = p.findall(each)
+			if x: print x
 			hw[st] += len(p.findall(each))*len(st)
 		sr = 'b'*i
 		hw[sr] = 0
 		p = re.compile(r'\b'+sr+r'\b')
 		for each in li:
+			x = p.findall(each)
+			if x: print x
 			hw[sr] += len(p.findall(each))*len(sr)
 	for i in hw:
 		if 'w' in i:
 			sum_w += hw[i]
 		else:
 			sum_b += hw[i]
-	print "dict",hw
-	print "white:",sum_w
-	print "black:",sum_b
+	print "sum_b:", sum_b
+	print "sum_w:", sum_w
+	print "hw:", hw
 	return sum_b - sum_w
-	
-	
-def minimax(state,min_flag):
-	if chkTerminal(state):
-		print "Terminal\n"
-		return eval(state), state
-	if min_flag:
-		return min(minimax(succ) for succ in successors(state,(min_flag+1)%2))
-	else:
-		return max(minimax(succ) for succ in successors(state,(min_flag+1)%2))
 
-print eval(CTM(board_state_string))
+def max_play(state):
+	#print "I am in MAX_PLAY"
+	#print "max_play:", state
+	if chkTerminal(state):
+		#print "Terminal: ", evaluate(state)
+		return evaluate(state)
+	max_score = -9999999
+	for succ in successors(state,0):
+		score = min_play(succ)
+		if max_score < score:
+			max_score = score
+	return max_score
+
+def min_play(state):
+	#print "I am in MIN_PLAY"
+	#print "min_play:", state
+	if chkTerminal(state):
+		#print "Terminal: ", evaluate(state)
+		return evaluate(state)
+	min_score = 9999999
+	for succ in successors(state,1):
+		score = max_play(succ)
+		if min_score > score:
+			min_score = score
+	return min_score
+
+def minimax(state):
+	if chkTerminal(state):
+		#print "Terminal: ", evaluate(state)
+		return evaluate(state), state
+	max_score = -9999999
+	state1 = 0
+	for succ in successors(state,0):
+		score = min_play(succ)
+		if max_score < score:
+			max_score = score
+			state1 = succ
+	return max_score, succ
+
+#for s in successors(CTM(board_state_string),0):
+#	print_state(s)
+#	print
+#print minimax(CTM(board_state_string))
+print evaluate(CTM(board_state_string))
+#print successors(CTM(board_state_string),0)
