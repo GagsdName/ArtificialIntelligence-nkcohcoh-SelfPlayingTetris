@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import copy
 import re
+import math
 #reading arguments
 
 if len(sys.argv) != 5:
@@ -17,6 +18,7 @@ max_string='w'*k
 min_string='b'*k
 max_wins=0
 min_wins=0
+D = 0
 
 def print_state(state):
 	for i in state:
@@ -30,8 +32,12 @@ def CTM(state):
 	#print type(n)
 	#print_state(state)
 	return fin_mat.tolist()
-
-
+	
+def calc_depth(time_limit):
+	global D
+	brnch_factor=board_state_string.count('.')
+	#D=math.log(time_limit+1,brnch_factor)
+	
 #returns all rotations of a board state    
 def rot_states(state):
 	#print "I am in rot_states"
@@ -163,18 +169,16 @@ def evaluate(state):
 	for i in range(2,k+1):
 		st = 'w'*i
 		hw[st] = 0
-		p = re.compile(r'\b'+st+r'\b')
+		p = re.compile(st+'+')
 		for each in li:
-			x = p.findall(each)
-			if x: print x
-			hw[st] += len(p.findall(each))*len(st)
+			if p.findall(each) and len(p.findall(each)[0]) == len(st):
+				hw[st] += len(p.findall(each))*len(st)
 		sr = 'b'*i
 		hw[sr] = 0
-		p = re.compile(r'\b'+sr+r'\b')
+		p = re.compile(sr+'+')
 		for each in li:
-			x = p.findall(each)
-			if x: print x
-			hw[sr] += len(p.findall(each))*len(sr)
+			if p.findall(each) and len(p.findall(each)[0]) == len(sr):
+				hw[sr] += len(p.findall(each))*len(sr)
 	for i in hw:
 		if 'w' in i:
 			sum_w += hw[i]
@@ -184,49 +188,79 @@ def evaluate(state):
 	print "sum_w:", sum_w
 	print "hw:", hw
 	return sum_b - sum_w
+	
+def max_depth_reached(state,depth):
+	global D
+	if depth>D:
+		return True
+	return False
 
-def max_play(state):
+def max_play(state, alpha, beta,depth):
 	#print "I am in MAX_PLAY"
 	#print "max_play:", state
 	if chkTerminal(state):
 		#print "Terminal: ", evaluate(state)
 		return evaluate(state)
+		
+	if max_depth_reached(state,depth):
+		return evaluate(state)
+		
 	max_score = -9999999
 	for succ in successors(state,0):
-		score = min_play(succ)
+		score = min_play(succ, alpha, beta,depth+1)
 		if max_score < score:
 			max_score = score
+		if max_score >= beta:
+			return max_score
+		alpha = max(alpha, max_score)
 	return max_score
 
-def min_play(state):
+def min_play(state,alpha,beta,depth):
 	#print "I am in MIN_PLAY"
 	#print "min_play:", state
 	if chkTerminal(state):
 		#print "Terminal: ", evaluate(state)
 		return evaluate(state)
+		
+	if max_depth_reached(state,depth):
+		return evaluate(state)
+		
 	min_score = 9999999
 	for succ in successors(state,1):
-		score = max_play(succ)
+		score = max_play(succ, alpha, beta,depth+1)
 		if min_score > score:
 			min_score = score
+		if min_score <= alpha:
+			return min_score
+		beta=min(beta,score)
 	return min_score
 
-def minimax(state):
+def minimax(state,depth=0):
 	if chkTerminal(state):
 		#print "Terminal: ", evaluate(state)
 		return evaluate(state), state
+		
+	if max_depth_reached(state,depth):
+		return evaluate(state),state
+		
+	alpha=-99999999
+	beta=999999999
 	max_score = -9999999
 	state1 = 0
 	for succ in successors(state,0):
-		score = min_play(succ)
+		score = min_play(succ, alpha, beta,depth+1)
 		if max_score < score:
 			max_score = score
 			state1 = succ
+		if max_score >= beta:
+			return max_score, succ
+		alpha = max(alpha, max_score)
 	return max_score, succ
 
 #for s in successors(CTM(board_state_string),0):
 #	print_state(s)
 #	print
-#print minimax(CTM(board_state_string))
-print evaluate(CTM(board_state_string))
+print minimax(CTM(board_state_string))
+#calc_depth(time_limit)
+#print evaluate(CTM(board_state_string))
 #print successors(CTM(board_state_string),0)
