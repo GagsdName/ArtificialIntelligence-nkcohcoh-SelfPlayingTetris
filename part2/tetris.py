@@ -29,7 +29,9 @@ class ComputerPlayer:
 	commands = [ "b", "n", "m"]
 	#chance node
         def chance_layer(self,piece,actions, board):
-		new_position = self.result(piece,actions,board)
+		new_position = self.result(piece,actions)
+		self.evaluation(new_position)
+		
 		return True
 	#max node value
         def max_layer(self,piece,board):
@@ -51,17 +53,18 @@ class ComputerPlayer:
 
 	#evaluation function for a given state
 	def evaluation(self,position):
+		#evaluate piece
         	print tetris.get_board()	
 	
 	#transition model - result of an action on the current state
-	def result(self,piece,actions,board):
+	def result(self,piece,actions):
 		print "\nactions:",actions
 		print "\nBefore Actions:", tetris.get_piece()
 		commands_map = { "b": tetris.left, "n": tetris.rotate, "m": tetris.right, " ": tetris.down }
 		for action in actions:
 			commands_map[action]()
-			self.evaluation(tetris.get_piece())			
-		return True
+			#self.evaluation(tetris.get_piece())			
+		return tetris.get_piece()
 
 	# Given a new piece (encoded as a list of strings) and a board (also list of strings), 
     	# this function should generate a series of commands to move the piece into the "optimal"
