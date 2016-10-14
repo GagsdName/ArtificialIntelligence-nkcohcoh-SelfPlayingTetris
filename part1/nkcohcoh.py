@@ -1,9 +1,10 @@
 import sys, copy, re, math, numpy as np
-#reading arguments
 
 if len(sys.argv) != 5:
 	print "\n Use the following format: python nkcohcoh.py [value of n] [value of k] [board in row major format] [time-limit for move]"
 	sys.exit()
+
+#reading arguments
 n = int(sys.argv[1])
 k = int(sys.argv[2])
 board_state_string = str(sys.argv[3])
@@ -13,30 +14,33 @@ min_string = 'b'*k
 max_wins = 0
 min_wins = 0
 D = 0
+
 #print the state in a human readable format
 def print_state(state):
 	for i in state:
 		print i
+
 #calculate the max depth achievable in the given time limit
 def calc_depth(time_limit):
 	global D
-	brnch_factor=board_state_string.count('.')
-	#D=math.log(time_limit+1,brnch_factor)
+	brnch_factor = board_state_string.count('.')
+	D = 1000000000
+	#D = math.log(time_limit+1,brnch_factor)
+
 #returns all rotations of a board state    
 def rot_states(state):
-	#print "I am in rot_states"
-	state_set=[state]
-	k=np.rot90(state)
+	state_set = [state]
+	k = np.rot90(state)
 	state_set.append(k.tolist())
-	l=np.rot90(k)
+	l = np.rot90(k)
 	state_set.append(l.tolist())
-	n=np.rot90(l)
+	n = np.rot90(l)
 	state_set.append(n.tolist())
 	return state_set
+
 #returns unique board States
 def findUniqueStates(succ):
-	#print "I am in findUnique"
-	boardStates=[]
+	boardStates = []
 	for state in succ:
 		n1 = 0
 		for rot in rot_states(state):
@@ -48,84 +52,81 @@ def findUniqueStates(succ):
 
 #check for terminal state
 def chkTerminaldiag(state):
-	#print "I am in ChkDiag"
 	global max_wins
 	global min_wins
 	global n
-	mat=np.array(state)
-	a=mat.reshape(n,n)
+	mat = np.array(state)
+	a = mat.reshape(n,n)
 	diags = [a[::-1,:].diagonal(i) for i in range(-a.shape[0]+1,a.shape[1])]
 	diags.extend(a.diagonal(i) for i in range(a.shape[1]-1,-a.shape[0],-1))
-	li=[]
+	li = []
 	for n1 in diags:
 		if not len(n1.tolist())<k:
 			li.append(''.join(n1.tolist()))
 	for each in li:
 		if max_string in each:
-			max_wins=1
+			max_wins = 1
 			return True
 		elif min_string in each:
-			min_wins=1
+			min_wins = 1
 			return True
-	#print type(n)
 	return False
 
+#check for terminal state
 def chkTerminalrow(state):
-	#print "I am in Chk row"
 	global max_wins
 	global min_wins
 	global n
-	Rowli=[]
+	Rowli = []
 	for i in range(n):
 		Rowli.append(''.join(state[i]))
 	for each in Rowli:
 		if ''.join(max_string) in each:
-			max_wins=1
+			max_wins = 1
 			return True
 		elif ''.join(min_string) in Rowli:
-			min_wins=1
+			min_wins = 1
 			return True
 	return False
 
+#check for terminal state
 def chkTerminal(state):
-	#print "I am in Chk Terminal"
 	if '.' in str(state):
 		return chkTerminalrow(state) or chkTerminalrow(np.transpose(state)) or chkTerminaldiag(state)
 	else:
 		return True
 
+#return successors of a state
 def successors(state,_min):
-	#print "I am in succesors"
 	count = 0
 	succ = []
 	if _min:
 		c = 'b'
 	else:
 		c = 'w'
-	#print "suc state",state
 	succ=replace(state,c)
 	return findUniqueStates(succ)
 
+#generate each successor for a state
 def replace(state,c):
-	#print "I am in replace", state
 	global n
-	succlist=[]
+	succlist = []
 	for i in range(n):
 		for j in range(n):
 			if state[i][j] == '.':
-				temp=state[i][j]
+				temp = state[i][j]
 				state[i][j] = c
-				state1=copy.deepcopy(state)
+				state1 = copy.deepcopy(state)
 				succlist.append(state1)
-				state[i][j]=temp
+				state[i][j] = temp
 	return succlist
 
+#get all the rows, columns and diagonals
 def getall(state):
-	#print "I am in getall"
 	global n
 	li = []
-	mat=np.array(state)
-	a=mat.reshape(n,n)
+	mat = np.array(state)
+	a = mat.reshape(n,n)
 	diags = [a[::-1,:].diagonal(i) for i in range(-a.shape[0]+1,a.shape[1])]
 	diags.extend(a.diagonal(i) for i in range(a.shape[1]-1,-a.shape[0],-1))
 	for item in diags:
@@ -137,9 +138,7 @@ def getall(state):
 	return li
 
 def evaluate(state):
-	#print "I am in eval"
 	li = getall(state)
-	#print li
 	sum_w = 0
 	sum_b = 0
 	hw = {}
@@ -164,7 +163,7 @@ def evaluate(state):
 	#print "sum_b:", sum_b
 	#print "sum_w:", sum_w
 	#print "hw:", hw
-	q=re.compile('w'*k)
+	q = re.compile('w'*k)
 	q1 = re.compile('b'*k)
 	for each in li:
 		if q.findall(each):
@@ -173,21 +172,12 @@ def evaluate(state):
 			return 1
 	return 0
 
-def max_depth_reached(state,depth):
-	global D
-	if depth>D:
-		return True
-	return False
-
 def max_play(state, alpha, beta,depth):
-	#print "I am in MAX_PLAY"
 	print "max_play:", state, "alpha: ", alpha, "beta: ", beta, "depth: ", depth
-	if chkTerminal(state):
+	if chkTerminal(state) or depth >= D:
 		alpha = max(alpha, evaluate(state))
 		print "Terminal: ", evaluate(state), "alpha: ", alpha, "depth: ", depth
 		return evaluate(state)
-	#if max_depth_reached(state,depth):
-	#	return evaluate(state)
 	max_score = -999999
 	for succ in successors(state,0):
 		if chkTerminal(succ):
@@ -202,14 +192,11 @@ def max_play(state, alpha, beta,depth):
 	return max_score
 
 def min_play(state,alpha,beta,depth):
-	#print "I am in MIN_PLAY"
 	print "min_play:", state, "alpha: ", alpha, "beta: ", beta, "depth: ", depth
-	if chkTerminal(state):
+	if chkTerminal(state) or depth >= D:
 		beta = min(beta, evaluate(state))
 		print "Terminal: ", evaluate(state), "beta: ", beta, "depth: ", depth
 		return evaluate(state)
-	#if max_depth_reached(state,depth):
-	#	return evaluate(state)
 	min_score = 999999
 	for succ in successors(state,1):
 		score = max_play(succ, alpha, beta, depth + 1)
@@ -231,8 +218,6 @@ def minimax(state,depth = 0):
 		alpha = max(alpha, evaluate(state))
 		print "Terminal: ", evaluate(state), "alpha: ", alpha, "beta: ", beta, "depth: ", depth
 		return evaluate(state), state
-	#if max_depth_reached(state,depth):
-	#	return evaluate(state),state
 	print "minimax:", state, "alpha:", alpha, "beta:", beta, "depth: ", depth
 	for succ in successors(state,0):
 		if chkTerminal(succ):
@@ -250,9 +235,6 @@ def minimax(state,depth = 0):
 		return max_score, state1
 	return max_score, successors(state,0)[0]
 
+calc_depth(time_limit)
 board_state = np.array(list(board_state_string)).reshape(n,n).tolist()
 print minimax(board_state)
-#print rot_states(board_state)
-#calc_depth(time_limit)
-#print evaluate(CTM(board_state_string))
-#print successors(CTM(board_state_string),0)
