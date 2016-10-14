@@ -1,48 +1,31 @@
-import sys
-import numpy as np
-import copy
-import re
-import math
+import sys, copy, re, math, numpy as np
 #reading arguments
 
 if len(sys.argv) != 5:
-    print "\n Use the following format: python nkcohcoh.py [value of n] [value of k] [board in row major format] [time-limit for move]"
-    sys.exit()
-
+	print "\n Use the following format: python nkcohcoh.py [value of n] [value of k] [board in row major format] [time-limit for move]"
+	sys.exit()
 n = int(sys.argv[1])
 k = int(sys.argv[2])
 board_state_string = str(sys.argv[3])
 time_limit = int(sys.argv[4])
-boardStates=set()
-max_string='w'*k
-min_string='b'*k
-max_wins=0
-min_wins=0
+max_string = 'w'*k
+min_string = 'b'*k
+max_wins = 0
+min_wins = 0
 D = 0
-
+#print the state in a human readable format
 def print_state(state):
 	for i in state:
 		print i
-    
-def CTM(state):
-	#print "I am in CTM"
-	global n
-	mat=np.array(list(state))
-	fin_mat=mat.reshape(n,n)
-	#print type(n)
-	#print_state(state)
-	return fin_mat.tolist()
-	
+#calculate the max depth achievable in the given time limit
 def calc_depth(time_limit):
 	global D
 	brnch_factor=board_state_string.count('.')
 	#D=math.log(time_limit+1,brnch_factor)
-	
 #returns all rotations of a board state    
 def rot_states(state):
 	#print "I am in rot_states"
-	state_set=[]
-	state_set.append(state)
+	state_set=[state]
 	k=np.rot90(state)
 	state_set.append(k.tolist())
 	l=np.rot90(k)
@@ -50,7 +33,6 @@ def rot_states(state):
 	n=np.rot90(l)
 	state_set.append(n.tolist())
 	return state_set
-
 #returns unique board States
 def findUniqueStates(succ):
 	#print "I am in findUnique"
@@ -62,9 +44,8 @@ def findUniqueStates(succ):
 				n1 = n1+1
 		if n1 == 4:
 			boardStates.append(state)
-	return boardStates
-	
-	
+	return boardStates	
+
 #check for terminal state
 def chkTerminaldiag(state):
 	#print "I am in ChkDiag"
@@ -123,14 +104,12 @@ def successors(state,_min):
 		c = 'w'
 	#print "suc state",state
 	succ=replace(state,c)
-	
 	return findUniqueStates(succ)
 
 def replace(state,c):
 	#print "I am in replace", state
 	global n
 	succlist=[]
-	#print type(n)
 	for i in range(n):
 		for j in range(n):
 			if state[i][j] == '.':
@@ -139,7 +118,6 @@ def replace(state,c):
 				state1=copy.deepcopy(state)
 				succlist.append(state1)
 				state[i][j]=temp
-	#print type(n)
 	return succlist
 
 def getall(state):
@@ -156,13 +134,12 @@ def getall(state):
 		li.append(''.join(state[i]))
 	for i in np.transpose(state).tolist():
 		li.append(''.join(i))
-	#print type(n)
 	return li
 
 def evaluate(state):
 	#print "I am in eval"
 	li = getall(state)
-	print li
+	#print li
 	sum_w = 0
 	sum_b = 0
 	hw = {}
@@ -184,11 +161,18 @@ def evaluate(state):
 			sum_w += hw[i]
 		else:
 			sum_b += hw[i]
-	print "sum_b:", sum_b
-	print "sum_w:", sum_w
-	print "hw:", hw
-	return sum_b - sum_w
-	
+	#print "sum_b:", sum_b
+	#print "sum_w:", sum_w
+	#print "hw:", hw
+	q=re.compile('w'*k)
+	q1 = re.compile('b'*k)
+	for each in li:
+		if q.findall(each):
+			return -1
+		if q1.findall(each):
+			return 1
+	return 0
+
 def max_depth_reached(state,depth):
 	global D
 	if depth>D:
@@ -197,70 +181,78 @@ def max_depth_reached(state,depth):
 
 def max_play(state, alpha, beta,depth):
 	#print "I am in MAX_PLAY"
-	#print "max_play:", state
+	print "max_play:", state, "alpha: ", alpha, "beta: ", beta, "depth: ", depth
 	if chkTerminal(state):
-		#print "Terminal: ", evaluate(state)
+		alpha = max(alpha, evaluate(state))
+		print "Terminal: ", evaluate(state), "alpha: ", alpha, "depth: ", depth
 		return evaluate(state)
-		
-	if max_depth_reached(state,depth):
-		return evaluate(state)
-		
-	max_score = -9999999
+	#if max_depth_reached(state,depth):
+	#	return evaluate(state)
+	max_score = -999999
 	for succ in successors(state,0):
-		score = min_play(succ, alpha, beta,depth+1)
-		if max_score < score:
-			max_score = score
+		if chkTerminal(succ):
+			continue
+		score = min_play(succ, alpha, beta, depth + 1)
+		max_score = max(max_score,score)
 		if max_score >= beta:
+			print "max alpha:", alpha, "beta:", beta, "depth: ", depth
 			return max_score
 		alpha = max(alpha, max_score)
+	print "max alpha:", alpha, "beta:", beta, "depth: ", depth
 	return max_score
 
 def min_play(state,alpha,beta,depth):
 	#print "I am in MIN_PLAY"
-	#print "min_play:", state
+	print "min_play:", state, "alpha: ", alpha, "beta: ", beta, "depth: ", depth
 	if chkTerminal(state):
-		#print "Terminal: ", evaluate(state)
+		beta = min(beta, evaluate(state))
+		print "Terminal: ", evaluate(state), "beta: ", beta, "depth: ", depth
 		return evaluate(state)
-		
-	if max_depth_reached(state,depth):
-		return evaluate(state)
-		
-	min_score = 9999999
+	#if max_depth_reached(state,depth):
+	#	return evaluate(state)
+	min_score = 999999
 	for succ in successors(state,1):
-		score = max_play(succ, alpha, beta,depth+1)
-		if min_score > score:
-			min_score = score
+		score = max_play(succ, alpha, beta, depth + 1)
+		min_score = min(min_score,score)
 		if min_score <= alpha:
+			print "min alpha:", alpha, "beta:", beta, "depth: ", depth
 			return min_score
-		beta=min(beta,score)
+		beta = min(beta, min_score)
+	print "min alpha:", alpha, "beta:", beta, "depth: ", depth
 	return min_score
 
-def minimax(state,depth=0):
-	if chkTerminal(state):
-		#print "Terminal: ", evaluate(state)
-		return evaluate(state), state
-		
-	if max_depth_reached(state,depth):
-		return evaluate(state),state
-		
+def minimax(state,depth = 0):
 	alpha=-99999999
 	beta=999999999
 	max_score = -9999999
 	state1 = 0
+	flag = False
+	if chkTerminal(state):
+		alpha = max(alpha, evaluate(state))
+		print "Terminal: ", evaluate(state), "alpha: ", alpha, "beta: ", beta, "depth: ", depth
+		return evaluate(state), state
+	#if max_depth_reached(state,depth):
+	#	return evaluate(state),state
+	print "minimax:", state, "alpha:", alpha, "beta:", beta, "depth: ", depth
 	for succ in successors(state,0):
-		score = min_play(succ, alpha, beta,depth+1)
+		if chkTerminal(succ):
+			continue
+		score = min_play(succ, alpha, beta, depth + 1)
 		if max_score < score:
 			max_score = score
 			state1 = succ
+			flag = True
 		if max_score >= beta:
-			return max_score, succ
+			print "max alpha:", alpha, "beta:", beta, "depth: ", depth
+			return max_score
 		alpha = max(alpha, max_score)
-	return max_score, succ
+	if flag:
+		return max_score, state1
+	return max_score, successors(state,0)[0]
 
-#for s in successors(CTM(board_state_string),0):
-#	print_state(s)
-#	print
-print minimax(CTM(board_state_string))
+board_state = np.array(list(board_state_string)).reshape(n,n).tolist()
+print minimax(board_state)
+#print rot_states(board_state)
 #calc_depth(time_limit)
 #print evaluate(CTM(board_state_string))
 #print successors(CTM(board_state_string),0)
