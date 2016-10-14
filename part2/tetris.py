@@ -5,6 +5,7 @@ from AnimatedTetris import *
 from SimpleTetris import *
 from kbinput import *
 import time, sys
+import numpy as np
 
 class HumanPlayer:
     def get_moves(self, piece, board):
@@ -29,9 +30,13 @@ class ComputerPlayer:
 	commands = [ "b", "n", "m"]
 	#chance node
         def chance_layer(self,piece,actions, board):
-		new_position = self.result(piece,actions)
-		self.evaluation(new_position)
-		
+		result_tuple = self.result(piece,board,actions)
+		self.evaluation(result_tuple[0],(result_tuple[1],result_tuple[2]), board)
+		#print "\nresult_tuple = ", result_tuple
+		#print "\npiece = ", piece
+		#print "\nactions = ", actions
+		#print "\nsuccessor_piece = ", result_tuple[0]
+		#print "\nnew_position = ", result_tuple[1], result_tuple[2]	
 		return True
 	#max node value
         def max_layer(self,piece,board):
@@ -50,20 +55,50 @@ class ComputerPlayer:
 	def get_choice(self,piece,board):
 		desired_action = self.max_layer(piece,board)
 		return desired_action 
-
-	#evaluation function for a given state
-	def evaluation(self,position):
-		#evaluate piece
-        	print tetris.get_board()	
 	
-	#transition model - result of an action on the current state
-	def result(self,piece,actions):
-		print "\nactions:",actions
-		print "\nBefore Actions:", tetris.get_piece()
-		commands_map = { "b": tetris.left, "n": tetris.rotate, "m": tetris.right, " ": tetris.down }
+	def get_space_chunks(self,row):
+		c = 0
+		chunk_positions = [] 
+		chunk_lengths = []
+		length = 0
+		while c < len(row):
+			if row[c] == " ":
+				d = c
+				length = 0
+				chunk_positions.append(c)
+				while d < len(row) and row[d] == " ":
+					length+=1
+					d+=1
+				chunk_lengths.append(length)
+				c = c+length+1
+				#print "\n for row = ", row, " chunk length = ", length
+			else:
+				c+=1
+		return (chunk_positions, chunk_lengths)	
+				
+	#evaluation function for a given state
+	def evaluation(self,successor_piece,new_position, board):
+		#evaluate piece
+        	#board = tetris.get_board()
+		#print "\nboard = ", boarid
+		eval_points = 0
+		constant_multiplier = 10	
+		for row in board:
+			chunk_tuple = self.get_space_chunks(row)
+			for i in chunk_tuple[1]:
+				if (tetris.check_collision((board,0),successor_piece, new_position[0], new_position[1])) and\
+				 (len(successor_piece[len(successor_piece) - 1]) <= i):
+					eval_points = constant_multiplier * (i - len(successor_piece[len(successor_piece) - 1]))
+					print "\ni = ", i, " successor_piece = " ,successor_piece, " elligible for row =  ", row, " eval points = ", eval_points
+			
+			 
+	def result(self,piece,board,actions):
+		#print "\nactions:",actions
+		#print "\nBefore Actions:", tetris.get_piece()
+		commands_map = { "b": tetris.left, "n": tetris.rotate, "m": tetris.right }
 		for action in actions:
 			commands_map[action]()
-			#self.evaluation(tetris.get_piece())			
+			#self.evaluation(tetris.get_piece(), board)			
 		return tetris.get_piece()
 
 	# Given a new piece (encoded as a list of strings) and a board (also list of strings), 
@@ -73,7 +108,8 @@ class ComputerPlayer:
     	#
     	def get_moves(self, piece, board):
         	move_string = self.get_choice(piece, board)
-		#print self
+		#for row in board:
+		#	print "\column = ", row[0]
 		# super simple current algorithm: just randomly move left, right, and rotate a few times
         	return random.choice("mnb") * random.randint(1, 10)
        
