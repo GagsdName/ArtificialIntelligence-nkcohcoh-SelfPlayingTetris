@@ -45,10 +45,12 @@ class ComputerPlayer:
 			for action2 in self.commands:
 				for action3 in self.commands:
 					count = 1
-					'''for i in range(1,100):
+					for i in range(1,100): #depth value is 100
+						#random number multiplied with the combination of "bnm" generated to allow for multiple actions across the
+						# complete length of the board
 						action = random.choice(action1+action2+action3) * random.randint(1,10)
 						if action not in generated:
-							generated.append(action)'''
+							generated.append(action)
 					chance_eval = self.chance_layer(piece,(action1,action2,action3), board)#sent for evaluation		
 					if chance_eval > max_val: #keeping a track of the action which evaluates as max
 						max_val = chance_eval
