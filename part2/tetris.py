@@ -1,6 +1,6 @@
 # Simple tetris program! v0.1
 # D. Crandall, Sept 2016
-
+# Problem abstraction and analysis in a file called Assignment 2 - Report in master branch
 from AnimatedTetris import *
 from SimpleTetris import *
 from kbinput import *
@@ -28,27 +28,29 @@ class ComputerPlayer:
 	commands = [ "b", "n", "m"]
 	#chance node
         def chance_layer(self,piece,actions, board):
-		original_piece_tuple = tetris.get_piece()		
-		result_tuple = self.result(piece,board,actions)	
-		eval_val = self.evaluation(result_tuple[0],(result_tuple[1],result_tuple[2]), board)
-		temp_board_score = tetris.place_piece(tetris.state,piece,original_piece_tuple[1],original_piece_tuple[2])
+		original_piece_tuple = tetris.get_piece() #original piece value and position	
+		result_tuple = self.result(piece,board,actions)	#successor piece value and position
+		eval_val = self.evaluation(result_tuple[0],(result_tuple[1],result_tuple[2]), board) # heuristic evaluation
+		temp_board_score = tetris.place_piece(tetris.state,piece,original_piece_tuple[1],original_piece_tuple[2]) #just checking to see placement of piece 
+		#and resulting score
 		return eval_val
 	#max node value
         def max_layer(self,piece,board):
 		piece_tuple = tetris.get_piece()
 		max_val = self.evaluation(piece_tuple[0],(piece_tuple[1],piece_tuple[2]), board)
-		action_string = "bbb"
-		generated = []
+		action_string = "bbb" #default action if no favorable action could be calculated - meaning the piece is already at it's best position
+		#could not specify a " " as the default action as the program throws an error always with that.
+		generated = [] #so that there are no repeated actions if we added the middle random layer to possible combination of actions 
 		for action1 in self.commands:
 			for action2 in self.commands:
 				for action3 in self.commands:
 					count = 1
-					#for i in range(1,100):
-						#action = random.choice(action1+action2+action3) * random.randint(1,10)
-						#if action not in generated:
-							#generated.append(action)
-					chance_eval = self.chance_layer(piece,(action1,action2,action3), board)		
-					if chance_eval > max_val:
+					'''for i in range(1,100):
+						action = random.choice(action1+action2+action3) * random.randint(1,10)
+						if action not in generated:
+							generated.append(action)'''
+					chance_eval = self.chance_layer(piece,(action1,action2,action3), board)#sent for evaluation		
+					if chance_eval > max_val: #keeping a track of the action which evaluates as max
 						max_val = chance_eval
 						action_string = action1+action2+action3
 		return action_string
@@ -58,6 +60,7 @@ class ComputerPlayer:
 		return desired_action 
 
 	#checks piece type for multiplying with corresponding probability values to obtain expected values
+	#piece names have been assigned based on their similarity of shape to an alphabet or a number
 	def check_type(self,piece):
 		string  = str(piece).strip("[]")
                 if string  == "'x', 'x', 'x', 'x'" or string == "'xxxx'":
@@ -80,13 +83,13 @@ class ComputerPlayer:
 			if r == row:
 				return minus_factor
 			if board[r][col] == "x":
-				minus_factor =  1
+				minus_factor =  1 #indicating there is indeed another piece obstructing it's new column position
 				return minus_factor
 			if board[r][col] == " ":
-				minus_factor = -1
+				minus_factor = -1 # nothing is obstructing the piece's way
 		return minus_factor 
 			
-	#find number of non-space character in the last row of the piece
+	#find number of non-space character in the last row (or lower part)  of the successor - piece
 	def find_non_space_chars(self, piece):
 		count = 0
 		for row in piece[::-1]:
@@ -135,9 +138,17 @@ class ComputerPlayer:
 				if i <= new_position[1] and new_position[1] <= i + chunk_tuple[1][chunk_tuple[0].index(i)] - 1:
 					index = chunk_tuple[0].index(i)
 					if chunk_tuple[1][index] >= non_space_chars:
+						#Column heuristic - checking to see if the column the successor piece ends being in doesn't have any pieces 
+						#in the same column but rows above it - basically if anything else is in it's way 
 						minus_factor = self.check_rows_above(new_position[1],row,board)
+						#Row-heuristic
 						eval_points = constant_multiplier * (chunk_tuple[1][index] - non_space_chars) - minus_factor
+						#checking piece type , descriptions of piece names i.e line, brick etc can be found in check_type function
 						type_of_piece = self.check_type(successor_piece)
+						#applying weighted probablility distributions to the heuristic to calculate expectation values.
+						#still keeping the heuristic as negative values as initially it is calculated as the difference 
+						#between the space chunk  and the solid parts in the lowest part of the successor piece - which
+						#means - the lesser the difference the mostly likely the position is for the piece.
 						if type_of_piece == "line":
 							eval_points = eval_points * line_prob
 						if type_of_piece == "brick":
@@ -148,12 +159,12 @@ class ComputerPlayer:
 							eval_points = eval_points * t_prob
 						if type_of_piece == "7":
 							eval_points = eval_points * seven_prob
-						flag = True
+						flag = True #once a favorable position is found, the rest of the space chunks in the row are pruned from evaluation
 						break
 			if flag == True:
 				break
 		return eval_points	
-			 
+	#calculates the result of an action on a piece and returns a successor piece and position 
 	def result(self,piece,board,actions):
 		piece_pos_tuple = tetris.get_piece()
 		new_piece= piece_pos_tuple[0]
@@ -176,8 +187,10 @@ class ComputerPlayer:
     	# and n rotates. 
     	#
     	def get_moves(self, piece, board):
+		#writing pieces to an external file for probability value calculation, this can be removed as well.
 	 	target.write(str(piece).strip("[]"))
 		target.write("\n")	
+		#optimal action string
 		move_string = ""
 		move_string = move_string + self.get_choice(piece, board)
 		print "\nmove_string = ", move_string + " for piece = ", piece	
@@ -229,8 +242,11 @@ try:
         tetris = AnimatedTetris()
     else:
         print "unknown interface!"
+    
+    #file IO variable
     global target 
     target = open("pieces_print.txt", 'w')
+    
     tetris.start_game(player)
 
 except EndOfGame as s:
