@@ -25,23 +25,12 @@ class HumanPlayer:
 #
 class ComputerPlayer:
    
-	#depth = 0
-	#desired_depth = 6
 	commands = [ "b", "n", "m"]
 	#chance node
         def chance_layer(self,piece,actions, board):
 		original_piece_tuple = tetris.get_piece()		
-		#print "\n\n\n\n original piece = ", piece
-		#print "\n original piece and position = ", original_piece_tuple
 		result_tuple = self.result(piece,board,actions)	
-		#print "\nresult_tuple = ", result_tuple
-		#print "\nactions = ", actions	
-		#@print "\nsuccessor_piece = ", result_tuple[0]
 		eval_val = self.evaluation(result_tuple[0],(result_tuple[1],result_tuple[2]), board)
-		#print "\nnew_position = ", result_tuple[1], result_tuple[2]	
-		#print "\n eval_val in chance layer = ",eval_val
-		
-		#place piece back at it's original location	
 		temp_board_score = tetris.place_piece(tetris.state,piece,original_piece_tuple[1],original_piece_tuple[2])
 		return eval_val
 	#max node value
@@ -62,7 +51,6 @@ class ComputerPlayer:
 					if chance_eval > max_val:
 						max_val = chance_eval
 						action_string = action1+action2+action3
-                #print "\naction_string for piece -  ", piece, " is - ",action_string
 		return action_string
 	#ExpectiMiniMax
 	def get_choice(self,piece,board):
@@ -124,16 +112,12 @@ class ComputerPlayer:
 					d+=1
 				chunk_lengths.append(length)
 				c = c+length+1
-				#print "\n for row = ", row, " chunk length = ", length
 			else:
 				c+=1
 		return (chunk_positions, chunk_lengths)	
 				
 	#evaluation function for a given state
 	def evaluation(self,successor_piece,new_position, board):
-		#evaluate piece
-        	#board = tetris.get_board()
-		#print "\nboard = ", boarid
 		constant_multiplier = -1
 		eval_points = -9999999999999
 		line_prob =  0.428571428571
@@ -166,24 +150,11 @@ class ComputerPlayer:
 							eval_points = eval_points * seven_prob
 						flag = True
 						break
-				
-
-				#if not(tetris.check_collision(tetris.state,successor_piece, new_position[0], new_position[1])) and\
-				 #(non_space_chars <= i):
-				#	eval_points = constant_multiplier * (i - non_space_chars)
-				#	flag = True
-				#	break
-					#print "\ni = ", i, " successor_piece = " ,successor_piece, " elligible for row =  ", row, " eval points = ", eval_points
 			if flag == True:
 				break
 		return eval_points	
 			 
 	def result(self,piece,board,actions):
-		'''commands_map = { "b": tetris.left, "n": tetris.rotate, "m": tetris.right }
-		for action in actions:
-			commands_map[action]()
-		print "\npiece after action = ", piece
-		return tetris.get_piece()'''
 		piece_pos_tuple = tetris.get_piece()
 		new_piece= piece_pos_tuple[0]
 		new_row = piece_pos_tuple[1]
@@ -205,16 +176,11 @@ class ComputerPlayer:
     	# and n rotates. 
     	#
     	def get_moves(self, piece, board):
-        	#target = open("pieces_print.txt", 'w')
 	 	target.write(str(piece).strip("[]"))
 		target.write("\n")	
 		move_string = ""
 		move_string = move_string + self.get_choice(piece, board)
-		print "\nmove_string = ", move_string + " for piece = ", piece
-		
-		#for row in board:
-		#	print "\column = ", row[0]
-		# super simple current algorithm: just randomly move left, right, and rotate a few times
+		print "\nmove_string = ", move_string + " for piece = ", piece	
         	return move_string
 		#random.choice("mnb") * random.randint(1, 10)
        
@@ -266,9 +232,6 @@ try:
     global target 
     target = open("pieces_print.txt", 'w')
     tetris.start_game(player)
-    #with open('pieces_print.txt') as fin:
-     #   for line in fin:
-		#print "\n line = ", line
 
 except EndOfGame as s:
     print "\n\n\n", s
