@@ -24,8 +24,8 @@ def print_state(state):
 def calc_depth(time_limit):
 	global D
 	brnch_factor = board_state_string.count('.')
-	D = 1000000000
-	#D = math.log(time_limit+1,brnch_factor)
+	#D = 1000000000
+	D = math.log(time_limit + 1,brnch_factor)
 
 #returns all rotations of a board state    
 def rot_states(state):
@@ -160,23 +160,24 @@ def evaluate(state):
 			sum_w += hw[i]
 		else:
 			sum_b += hw[i]
+	return sum_b - sum_w
 	#print "sum_b:", sum_b
 	#print "sum_w:", sum_w
 	#print "hw:", hw
-	q = re.compile('w'*k)
-	q1 = re.compile('b'*k)
-	for each in li:
-		if q.findall(each):
-			return -1
-		if q1.findall(each):
-			return 1
-	return 0
+	#q = re.compile('w'*k)
+	#q1 = re.compile('b'*k)
+	#for each in li:
+	#	if q.findall(each):
+	#		return -1
+	#	if q1.findall(each):
+	#		return 1
+	#return 0
 
 def max_play(state, alpha, beta,depth):
-	print "max_play:", state, "alpha: ", alpha, "beta: ", beta, "depth: ", depth
+	#print "max_play:", state, "alpha: ", alpha, "beta: ", beta, "depth: ", depth
 	if chkTerminal(state) or depth >= D:
 		alpha = max(alpha, evaluate(state))
-		print "Terminal: ", evaluate(state), "alpha: ", alpha, "depth: ", depth
+		#print "Terminal: ", evaluate(state), "alpha: ", alpha, "depth: ", depth
 		return evaluate(state)
 	max_score = -999999
 	for succ in successors(state,0):
@@ -185,27 +186,27 @@ def max_play(state, alpha, beta,depth):
 		score = min_play(succ, alpha, beta, depth + 1)
 		max_score = max(max_score,score)
 		if max_score >= beta:
-			print "max alpha:", alpha, "beta:", beta, "depth: ", depth
+			#print "max alpha:", alpha, "beta:", beta, "depth: ", depth
 			return max_score
 		alpha = max(alpha, max_score)
-	print "max alpha:", alpha, "beta:", beta, "depth: ", depth
+	#print "max alpha:", alpha, "beta:", beta, "depth: ", depth
 	return max_score
 
 def min_play(state,alpha,beta,depth):
-	print "min_play:", state, "alpha: ", alpha, "beta: ", beta, "depth: ", depth
+	#print "min_play:", state, "alpha: ", alpha, "beta: ", beta, "depth: ", depth
 	if chkTerminal(state) or depth >= D:
 		beta = min(beta, evaluate(state))
-		print "Terminal: ", evaluate(state), "beta: ", beta, "depth: ", depth
+		#print "Terminal: ", evaluate(state), "beta: ", beta, "depth: ", depth
 		return evaluate(state)
 	min_score = 999999
 	for succ in successors(state,1):
 		score = max_play(succ, alpha, beta, depth + 1)
 		min_score = min(min_score,score)
 		if min_score <= alpha:
-			print "min alpha:", alpha, "beta:", beta, "depth: ", depth
+			#print "min alpha:", alpha, "beta:", beta, "depth: ", depth
 			return min_score
 		beta = min(beta, min_score)
-	print "min alpha:", alpha, "beta:", beta, "depth: ", depth
+	#print "min alpha:", alpha, "beta:", beta, "depth: ", depth
 	return min_score
 
 def minimax(state,depth = 0):
@@ -216,9 +217,9 @@ def minimax(state,depth = 0):
 	flag = False
 	if chkTerminal(state):
 		alpha = max(alpha, evaluate(state))
-		print "Terminal: ", evaluate(state), "alpha: ", alpha, "beta: ", beta, "depth: ", depth
+		#print "Terminal: ", evaluate(state), "alpha: ", alpha, "beta: ", beta, "depth: ", depth
 		return evaluate(state), state
-	print "minimax:", state, "alpha:", alpha, "beta:", beta, "depth: ", depth
+	#print "minimax:", state, "alpha:", alpha, "beta:", beta, "depth: ", depth
 	for succ in successors(state,0):
 		if chkTerminal(succ):
 			continue
@@ -228,7 +229,7 @@ def minimax(state,depth = 0):
 			state1 = succ
 			flag = True
 		if max_score >= beta:
-			print "max alpha:", alpha, "beta:", beta, "depth: ", depth
+			#print "max alpha:", alpha, "beta:", beta, "depth: ", depth
 			return max_score
 		alpha = max(alpha, max_score)
 	if flag:
