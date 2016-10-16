@@ -48,21 +48,20 @@ class ComputerPlayer:
         def max_layer(self,piece,board):
 		piece_tuple = tetris.get_piece()
 		max_val = self.evaluation(piece_tuple[0],(piece_tuple[1],piece_tuple[2]), board)
-		action_string = " "
+		action_string = "bbb"
 		generated = []
 		for action1 in self.commands:
 			for action2 in self.commands:
 				for action3 in self.commands:
 					count = 1
-					for i in range(1,100):
-						action = random.choice(action1+action2+action3) * random.randint(1,10)
-						if action not in generated:
-							generated.append(action)
-							chance_eval = self.chance_layer(piece,action, board)
-							#print "\n chance eval = ", chance_eval
-							if chance_eval > max_val:
-								max_val = chance_eval
-								action_string = action1+action2+action3
+					#for i in range(1,100):
+						#action = random.choice(action1+action2+action3) * random.randint(1,10)
+						#if action not in generated:
+							#generated.append(action)
+					chance_eval = self.chance_layer(piece,(action1,action2,action3), board)		
+					if chance_eval > max_val:
+						max_val = chance_eval
+						action_string = action1+action2+action3
                 #print "\naction_string for piece -  ", piece, " is - ",action_string
 		return action_string
 	#ExpectiMiniMax
@@ -70,6 +69,35 @@ class ComputerPlayer:
 		desired_action = self.max_layer(piece,board)
 		return desired_action 
 
+	#checks piece type for multiplying with corresponding probability values to obtain expected values
+	def check_type(self,piece):
+		string  = str(piece).strip("[]")
+                if string  == "'x', 'x', 'x', 'x'" or string == "'xxxx'":
+                        return "line"
+                if string == "'xx', 'xx'":
+                        return "brick"
+                if string == "'xx ', ' xx'" or string == "' x', 'xx', 'x '" or string == "' xx', 'xx '"\
+                 or string == "'x ', 'xx',', ' x'" or string == "' xx', 'xx '":
+                        return "n"
+                if string == "'xxx', ' x '" or string == "'x ', 'xx', 'x '" or string == "' x ', 'xxx'" or string == "' x', 'xx', ' x'":
+                        return "t"
+                if string == "'xxx', '  x'" or string == "' x', ' x', 'xx'" or string == "'xx', 'x ', 'x '":
+                        return "7"
+		
+		return None 
+	#check r ws above a prospective match for a column position to validate heuristic and make it stronger or weaker
+	def check_rows_above(self,col,row,board):
+		minus_factor = 0
+		for r in range(0,20):
+			if r == row:
+				return minus_factor
+			if board[r][col] == "x":
+				minus_factor =  1
+				return minus_factor
+			if board[r][col] == " ":
+				minus_factor = -1
+		return minus_factor 
+			
 	#find number of non-space character in the last row of the piece
 	def find_non_space_chars(self, piece):
 		count = 0
@@ -106,19 +134,36 @@ class ComputerPlayer:
 		#evaluate piece
         	#board = tetris.get_board()
 		#print "\nboard = ", boarid
+		constant_multiplier = -1
 		eval_points = -9999999999999
+		line_prob =  0.428571428571
+		brick_prob =  0.0
+		n_prob =  0.238095238095
+		t_prob =  0.0952380952381
+		seven_prob  =  0.190476190476
 		constant_multiplier = -1
 		non_space_chars = self.find_non_space_chars(successor_piece)
-		for row in board[::-1]:
+		for row in range(19,-1,-1):
 			flag = False
-			chunk_tuple = self.get_space_chunks(row)
+			chunk_tuple = self.get_space_chunks(board[row])
 			max_for_row = -99999999999999
 			for i in chunk_tuple[0]:
-				if i <= new_position[1] and new_position[1] <= i + chunk_tuple[1][chunk_tuple[0].index(i)]:
+				if i <= new_position[1] and new_position[1] <= i + chunk_tuple[1][chunk_tuple[0].index(i)] - 1:
 					index = chunk_tuple[0].index(i)
-					if chunk_tuple[1][index] >= non_space_chars and\
-					 not(tetris.check_collision(tetris.state,successor_piece, board[::-1].index(row), new_position[1] )):
-						eval_points = constant_multiplier * (chunk_tuple[1][index] - non_space_chars)
+					if chunk_tuple[1][index] >= non_space_chars:
+						minus_factor = self.check_rows_above(new_position[1],row,board)
+						eval_points = constant_multiplier * (chunk_tuple[1][index] - non_space_chars) - minus_factor
+						type_of_piece = self.check_type(successor_piece)
+						if type_of_piece == "line":
+							eval_points = eval_points * line_prob
+						if type_of_piece == "brick":
+							eval_points = eval_points * brick_prob
+						if type_of_piece == "n":
+							eval_points = eval_points * n_prob
+						if type_of_piece == "t":
+							eval_points = eval_points * t_prob
+						if type_of_piece == "7":
+							eval_points = eval_points * seven_prob
 						flag = True
 						break
 				
@@ -160,14 +205,18 @@ class ComputerPlayer:
     	# and n rotates. 
     	#
     	def get_moves(self, piece, board):
-        	move_string = ""
+        	#target = open("pieces_print.txt", 'w')
+	 	target.write(str(piece).strip("[]"))
+		target.write("\n")	
+		move_string = ""
 		move_string = move_string + self.get_choice(piece, board)
-
 		print "\nmove_string = ", move_string + " for piece = ", piece
+		
 		#for row in board:
 		#	print "\column = ", row[0]
 		# super simple current algorithm: just randomly move left, right, and rotate a few times
-        	return random.choice("mnb") * random.randint(1, 10)
+        	return move_string
+		#random.choice("mnb") * random.randint(1, 10)
        
     	# This is the version that's used by the animted version. This is really similar to get_moves,
     	# except that it runs as a separate thread and you should access various methods and data in
@@ -214,7 +263,12 @@ try:
         tetris = AnimatedTetris()
     else:
         print "unknown interface!"
+    global target 
+    target = open("pieces_print.txt", 'w')
     tetris.start_game(player)
+    #with open('pieces_print.txt') as fin:
+     #   for line in fin:
+		#print "\n line = ", line
 
 except EndOfGame as s:
     print "\n\n\n", s

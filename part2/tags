@@ -1,0 +1,59 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+AnimatedTetris	AnimatedTetris.py	/^class AnimatedTetris(TetrisGame):$/;"	c
+BOARD_HEIGHT	TetrisGame.py	/^  BOARD_HEIGHT = 20$/;"	v	class:TetrisGame
+BOARD_WIDTH	TetrisGame.py	/^  BOARD_WIDTH = 10$/;"	v	class:TetrisGame
+ComputerPlayer	tetris.py	/^class ComputerPlayer:$/;"	c
+EndOfGame	TetrisGame.py	/^class EndOfGame(Exception):$/;"	c
+HumanPlayer	tetris.py	/^class HumanPlayer:$/;"	c
+PIECES	TetrisGame.py	/^  PIECES = [ [ "xxxx" ], [ "xx ", " xx" ], [ "xx", "xx" ], [ "xxx", "  x"], [ "xxx", " x " ] ]$/;"	v	class:TetrisGame
+SimpleTetris	SimpleTetris.py	/^class SimpleTetris(TetrisGame):$/;"	c
+TetrisGame	TetrisGame.py	/^class TetrisGame:$/;"	c
+__init__	AnimatedTetris.py	/^  def __init__(self):$/;"	m	class:AnimatedTetris
+__init__	SimpleTetris.py	/^  def __init__(self):$/;"	m	class:SimpleTetris
+__init__	TetrisGame.py	/^  def __init__(self):$/;"	m	class:TetrisGame
+__init__	TetrisGame.py	/^  def __init__(self,s) :$/;"	m	class:EndOfGame
+__str__	TetrisGame.py	/^  def __str__(self):$/;"	m	class:EndOfGame	file:
+check_collision	TetrisGame.py	/^  def check_collision((board, score), piece, row, col):$/;"	m	class:TetrisGame
+combine	TetrisGame.py	/^  def combine(str1, str2):$/;"	m	class:TetrisGame
+control_game	tetris.py	/^    def control_game(self, tetris):$/;"	m	class:ComputerPlayer
+control_game	tetris.py	/^    def control_game(self, tetris):$/;"	m	class:HumanPlayer
+display_thread	AnimatedTetris.py	/^  def display_thread(self):$/;"	m	class:AnimatedTetris
+down	TetrisGame.py	/^  def down(self):$/;"	m	class:TetrisGame
+fcntl	kbinput.py	/^import termios, fcntl, sys, os$/;"	i
+finish	TetrisGame.py	/^  def finish(self):$/;"	m	class:TetrisGame
+get_board	TetrisGame.py	/^  def get_board(self):$/;"	m	class:TetrisGame
+get_char_keyboard	kbinput.py	/^def get_char_keyboard():$/;"	f
+get_moves	tetris.py	/^    def get_moves(self, piece, board):$/;"	m	class:ComputerPlayer
+get_moves	tetris.py	/^    def get_moves(self, piece, board):$/;"	m	class:HumanPlayer
+get_next_piece	TetrisGame.py	/^  def get_next_piece(self):$/;"	m	class:TetrisGame
+get_piece	TetrisGame.py	/^  def get_piece(self):$/;"	m	class:TetrisGame
+get_score	TetrisGame.py	/^  def get_score(eslf):$/;"	m	class:TetrisGame
+gravity_thread	AnimatedTetris.py	/^  def gravity_thread(self):$/;"	m	class:AnimatedTetris
+left	TetrisGame.py	/^  def left(self):$/;"	m	class:TetrisGame
+move	TetrisGame.py	/^  def move(self, col_offset, new_piece):$/;"	m	class:TetrisGame
+new_piece	TetrisGame.py	/^  def new_piece(self):$/;"	m	class:TetrisGame
+os	kbinput.py	/^import termios, fcntl, sys, os$/;"	i
+place_piece	TetrisGame.py	/^  def place_piece((board, score), piece, row, col):$/;"	m	class:TetrisGame
+print_board	TetrisGame.py	/^  def print_board(self, clear_screen):$/;"	m	class:TetrisGame
+print_state	TetrisGame.py	/^  def print_state((board, score)):$/;"	m	class:TetrisGame
+random	TetrisGame.py	/^import sys, time, random, threading, thread$/;"	i
+random_piece	TetrisGame.py	/^  def random_piece(self):$/;"	m	class:TetrisGame
+remove_complete_lines	TetrisGame.py	/^  def remove_complete_lines((board, score)):$/;"	m	class:TetrisGame
+right	TetrisGame.py	/^  def right(self):$/;"	m	class:TetrisGame
+rotate	TetrisGame.py	/^  def rotate(self):$/;"	m	class:TetrisGame
+rotate_piece	TetrisGame.py	/^  def rotate_piece(piece, rotation):$/;"	m	class:TetrisGame
+start_game	AnimatedTetris.py	/^  def start_game(self, player):$/;"	m	class:AnimatedTetris
+start_game	SimpleTetris.py	/^  def start_game(self, player):$/;"	m	class:SimpleTetris
+sys	TetrisGame.py	/^import sys, time, random, threading, thread$/;"	i
+sys	kbinput.py	/^import termios, fcntl, sys, os$/;"	i
+sys	tetris.py	/^import time, sys$/;"	i
+termios	kbinput.py	/^import termios, fcntl, sys, os$/;"	i
+thread	TetrisGame.py	/^import sys, time, random, threading, thread$/;"	i
+threading	TetrisGame.py	/^import sys, time, random, threading, thread$/;"	i
+time	TetrisGame.py	/^import sys, time, random, threading, thread$/;"	i
+time	tetris.py	/^import time, sys$/;"	i
