@@ -31,7 +31,7 @@ class ComputerPlayer:
 		original_piece_tuple = tetris.get_piece() #original piece value and position	
 		result_tuple = self.result(piece,board,actions)	#successor piece value and position
 		eval_val = self.evaluation(result_tuple[0],(result_tuple[1],result_tuple[2]), board) # heuristic evaluation
-		temp_board_score = tetris.place_piece(tetris.state,piece,original_piece_tuple[1],original_piece_tuple[2]) #just checking to see placement of piece 
+		#temp_board_score = tetris.place_piece(tetris.state,piece,original_piece_tuple[1],original_piece_tuple[2]) #just checking to see placement of piece 
 		#and resulting score
 		return eval_val
 	#max node value
@@ -214,17 +214,20 @@ class ComputerPlayer:
         	while 1:
             		time.sleep(0.1)
 
+            		piece = tetris.get_piece()
             		board = tetris.get_board()
-            		column_heights = [ min([ r for r in range(len(board)-1, 0, -1) if board[r][c] == "x"  ] + [100,] ) for c in range(0, len(board[0]) ) ]
-            		index = column_heights.index(max(column_heights))
+            		#column_heights = [ min([ r for r in range(len(board)-1, 0, -1) if board[r][c] == "x"  ] + [100,] ) for c in range(0, len(board[0]) ) ]
+					#index = column_heights.index(max(column_heights))
+            		moves = player.get_moves(piece,board)
+            		for c in moves:
+            			if c == 'b':
+            				tetris.left()
+            			elif c == 'm':
+            				tetris.right()
+            			elif c == 'n':
+            				tetris.rotate()
+			tetris.down()
 
-            		if(index < tetris.col):
-                		tetris.left()
-            		elif(index > tetris.col):
-                		tetris.right()
-            		else:
-                		tetris.down()
-    
 
 ###################
 #### main program
@@ -253,6 +256,3 @@ try:
 
 except EndOfGame as s:
     print "\n\n\n", s
-
-
-
