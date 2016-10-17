@@ -137,6 +137,7 @@ def getall(state):
 		li.append(''.join(i))
 	return li
 
+#returns evaluation using the heuristic
 def evaluate(state):
 	li = getall(state)
 	sum_w = 0
@@ -173,6 +174,7 @@ def evaluate(state):
 	#		return 1
 	#return 0
 
+#max's move
 def max_play(state, alpha, beta,depth):
 	#print "max_play:", state, "alpha: ", alpha, "beta: ", beta, "depth: ", depth
 	if chkTerminal(state) or depth >= D:
@@ -192,6 +194,7 @@ def max_play(state, alpha, beta,depth):
 	#print "max alpha:", alpha, "beta:", beta, "depth: ", depth
 	return max_score
 
+#min's move
 def min_play(state,alpha,beta,depth):
 	#print "min_play:", state, "alpha: ", alpha, "beta: ", beta, "depth: ", depth
 	if chkTerminal(state) or depth >= D:
@@ -209,6 +212,7 @@ def min_play(state,alpha,beta,depth):
 	#print "min alpha:", alpha, "beta:", beta, "depth: ", depth
 	return min_score
 
+#minimax algorithm
 def minimax(state,depth = 0):
 	alpha=-99999999
 	beta=999999999
@@ -236,6 +240,7 @@ def minimax(state,depth = 0):
 		return max_score, state1
 	return max_score, successors(state,0)[0]
 
+#main function
 calc_depth(time_limit)
 board_state = np.array(list(board_state_string)).reshape(n,n).tolist()
 print minimax(board_state)
